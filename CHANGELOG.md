@@ -3,6 +3,18 @@
 All notable changes to this skill are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org).
 
+## [0.0.2] - 2026-09-17
+
+### Changed
+
+- Perceive now documents the blocked-read contract: a detected content-free block is a `200` with
+  `is_blocked: true`, empty `outputs` and `billed: false`; `billed` is also `false` when
+  `deductions` contain `http_error` or `login_wall`. `render_quality` under 0.40 must not be
+  presented as content.
+- Errors section gains `429` / `Retry-After` and the blocked-page shape.
+- README: the publish command is inlined; the link to the removed `clawhub-enconvert-deploy/`
+  folder is gone.
+
 ## [0.0.1] - 2026-08-27
 
 ### Fixed before first publish (verified against the live API, 2026-08-31)

@@ -1,7 +1,7 @@
 ---
 name: enconvert
 description: Render web pages and files into agent-ready markdown, structured data, screenshots, and PDFs via EnConvert, with a render_quality honesty score on every read.
-version: 0.0.1
+version: 0.0.2
 author: EnConvert
 tags:
   - web
@@ -77,6 +77,12 @@ Read one URL into agent-ready outputs.
     not under `outputs`.
   - **Always read `render_quality`.** A low score means the render is degraded (bot wall,
     empty body, JS that never settled) — surface it, don't present the content as reliable.
+    **Below 0.40 is not content**: report the score and `deductions` (e.g. `anti_bot_challenge`,
+    `http_error`, `login_wall`) instead of quoting the page.
+  - **A detected block is a normal `200`** with `"is_blocked": true`, `"outputs": {}` and
+    `"billed": false` — there is nothing to fetch and the read was not charged. Say the page
+    was blocked; do not retry the same URL expecting a different answer. `billed` is also
+    `false` when `deductions` contain `http_error` or `login_wall`.
 
 ### 2. Web Search
 
@@ -195,6 +201,8 @@ curl -sS -X POST https://api.enconvert.com/v2/perceive \
   `sk_` key from https://www.enconvert.com/dashboard/api-keys.
 - `422` — bad body (e.g. distill given both `urls` and `discover_from`, or neither).
 - Low `render_quality` is **not** an HTTP error — it is a content-quality warning inside a
-  `200`. Check it on every perceive.
+  `200`. Check it on every perceive; under 0.40 is not content.
+- A blocked page is also a `200`: `is_blocked: true`, empty `outputs`, `billed: false`.
+- `429` — rate limited. Wait for the `Retry-After` header's seconds before retrying.
 
 Docs: https://www.enconvert.com/docs
